@@ -1,4 +1,7 @@
 use clap::{Parser, Subcommand};
+use std::{env, path::PathBuf};
+
+static FNAME : &str = "todo.json"; 
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -16,23 +19,28 @@ enum Commands {
         id: u32,
     },
     List,
-    Save {
-        fname: String,
-    },
-    Load {
-        fname: String
-    },
 }
 
 
-fn main() {
+fn main() -> std::io::Result<()> {
     let cli = Cli::parse();
+
+    let exe = env::current_exe()?;
+    let exe_dir = exe.parent().unwrap();
+    let path = exe_dir.join(FNAME);
+
+    if path.exists() {
+        println!("File exists: {}", path.display());
+    } else {
+        println!("File not found {}", path.display());
+    }
 
     match cli.command {
         Commands::Create { name } => println!("Adding {}", name),
         Commands::Delete { id } => println!("Removing {}", id),
-        Commands::Save { fname } => println!("Removing {}", fname),
-        Commands::Load { fname } => println!("Removing {}", fname),
-        Commands::List => println!("Listing items"),
+        Commands::List => println!("Listing items {}", FNAME),
     }
+
+    Ok(())
+
 }
